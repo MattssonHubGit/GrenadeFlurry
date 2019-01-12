@@ -64,7 +64,7 @@ MonoBehaviour:
     i14: 0
     i15: 0
   m_ServerOnly: 0
-  m_LocalPlayerAuthority: 1
+  m_LocalPlayerAuthority: 0
 --- !u!114 &1717935530148165144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79,4 +79,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerUnitPrefab: {fileID: 8640803564650712626, guid: d06c6ac856b0521498f4f494552404d1,
     type: 3}
-  clientOwnerMaterial: {fileID: 2100000, guid: bdefbca9fb511b541af10d555878d68f, type: 2}

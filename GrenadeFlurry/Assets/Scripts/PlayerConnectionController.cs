@@ -6,10 +6,10 @@ using UnityEngine.Networking;
 public class PlayerConnectionController : NetworkBehaviour
 {
     [SerializeField] private GameObject playerUnitPrefab;
+    [SerializeField] public PlayerUnitController myPlayerUnit;
 
     void Start()
     {
-
         //Only run on own client
         if (isLocalPlayer == false)
         {
@@ -17,22 +17,19 @@ public class PlayerConnectionController : NetworkBehaviour
         }
 
         //Spawn and set a player
-        CmdSpawnPlayer(this.gameObject);
+        CmdSpawnPlayer();
     }
 
     //////////////////////////////Commands
     //Commands are run on the server only
     [Command]
-    private void CmdSpawnPlayer(GameObject spawner)
+    private void CmdSpawnPlayer()
     {
         GameObject _player = Instantiate(playerUnitPrefab);
-        
+
+        myPlayerUnit = _player.GetComponent<PlayerUnitController>();
 
         NetworkServer.SpawnWithClientAuthority(_player, connectionToClient);
+
     }
-
-    ///////////////////////////RPCs
-    //RPCs are called on all clients induvidually
-
-    
 }
