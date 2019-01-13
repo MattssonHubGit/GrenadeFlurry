@@ -707,11 +707,13 @@ MonoBehaviour:
   moveSpeed: 600
   jumpPower: 5
   isGrounded: 1
+  maxSpeed: 15
   rb: {fileID: 5469278375504071640}
   meshRenderer: {fileID: 1276193242482384690}
   clientOwnerMaterial: {fileID: 2100000, guid: bdefbca9fb511b541af10d555878d68f, type: 2}
   myCam: {fileID: 1086529815208936528}
   head: {fileID: 4962808064247919744}
+  gfx: {fileID: 1374060151291161188}
 --- !u!136 &2365291131149969206
 CapsuleCollider:
   m_ObjectHideFlags: 0
