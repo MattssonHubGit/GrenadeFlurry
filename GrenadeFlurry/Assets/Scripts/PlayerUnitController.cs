@@ -11,6 +11,9 @@ public class PlayerUnitController : NetworkBehaviour
     [HideInInspector] public bool isGrounded = true;
     [SerializeField] private float maxSpeed;
     [HideInInspector] public bool isBoosted = false;
+    [HideInInspector] private float boostDuration = 0f;
+    private float currentBoostTimer = 0;
+    private Vector3 direction = Vector3.zero;
 
     [Header("Components")]
     [SerializeField] private Rigidbody rb;
@@ -40,8 +43,9 @@ public class PlayerUnitController : NetworkBehaviour
             return;
         }
 
-
+        Debug.Log("Is boosted: " + isBoosted + " Duration: " + boostDuration + " current: " + currentBoostTimer);
         MovementController();
+        BoostedTimer();
     }
 
     private void FixedUpdate()
@@ -54,38 +58,71 @@ public class PlayerUnitController : NetworkBehaviour
         LimitMaxSpeed();
     }
 
+
     private void MovementController()
     {
         gfx.eulerAngles = new Vector3(0, myCam.transform.eulerAngles.y, 0);
+        //direction = transform.InverseTransformDirection(rb.velocity);
+
+
 
         if (Input.GetKey(KeyCode.D) && isGrounded)
         {
             rb.AddForce(myCam.transform.right * moveSpeed * Time.deltaTime, ForceMode.Force);
+
         }
         if (Input.GetKey(KeyCode.A) && isGrounded)
         {
+
             rb.AddForce(myCam.transform.right * -moveSpeed * Time.deltaTime, ForceMode.Force);
+
         }
         if (Input.GetKey(KeyCode.W))
         {
-            if (!isGrounded)
-            {
-                rb.AddForce(myCam.transform.forward * moveSpeed * Time.deltaTime, ForceMode.Force);
-            }
-            else
-            {
-                rb.AddForce(gfx.forward * moveSpeed * Time.deltaTime, ForceMode.Force);
-            }
+
+            rb.AddForce(gfx.forward * moveSpeed * Time.deltaTime, ForceMode.Force);
+
+
         }
         if (Input.GetKey(KeyCode.S) && isGrounded)
         {
-            rb.AddForce(myCam.transform.forward * -moveSpeed * Time.deltaTime, ForceMode.Force);
+
+            rb.AddForce(gfx.forward * -moveSpeed * Time.deltaTime, ForceMode.Force);
+
         }
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
             isGrounded = false;
         }
+        if (Input.GetKey(KeyCode.LeftControl) && isGrounded) 
+        {
+            rb.velocity = Vector3.zero;
+        }
+    }
+
+    private void BoostedTimer()
+    {
+        if (isBoosted)
+        {
+            if (currentBoostTimer > boostDuration)
+            {
+                isBoosted = false;
+                currentBoostTimer = 0;
+                boostDuration = 0;
+            }
+            else
+            {
+                currentBoostTimer += Time.deltaTime;
+            }
+        }
+    }
+
+    public void SetBoost(float time)
+    {
+        boostDuration = time;
+        currentBoostTimer = 0;
+
     }
 
     private void LimitMaxSpeed()

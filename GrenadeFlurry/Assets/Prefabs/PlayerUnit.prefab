@@ -708,6 +708,7 @@ MonoBehaviour:
   jumpPower: 5
   isGrounded: 1
   maxSpeed: 15
+  isBoosted: 0
   rb: {fileID: 5469278375504071640}
   meshRenderer: {fileID: 1276193242482384690}
   clientOwnerMaterial: {fileID: 2100000, guid: bdefbca9fb511b541af10d555878d68f, type: 2}
