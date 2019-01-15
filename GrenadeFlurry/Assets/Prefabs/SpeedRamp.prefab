@@ -751,7 +751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de4187cffb0bc6645af3c54d5ca2d015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boostAmount: 50
+  boostAmount: 2000
 --- !u!1 &2212512612995936010
 GameObject:
   m_ObjectHideFlags: 0

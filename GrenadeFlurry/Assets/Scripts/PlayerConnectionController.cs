@@ -18,6 +18,7 @@ public class PlayerConnectionController : NetworkBehaviour
 
         //Spawn and set a player
         CmdSpawnPlayer();
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     //////////////////////////////Commands

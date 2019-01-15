@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Ramp : MonoBehaviour
 {
-    [SerializeField] private float boostAmount = 5f;
-    [SerializeField] private float boostDuration = 2f;
+    [SerializeField] private float boostAmount = 500f;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -14,14 +13,7 @@ public class Ramp : MonoBehaviour
         if (playerToBoost != null)
         {
 
-            Rigidbody _rb = playerToBoost.GetComponent<Rigidbody>();
-            if (_rb != null)
-            {
-                _rb.velocity = Vector3.zero;
-                _rb.AddForce(this.transform.forward * boostAmount, ForceMode.Impulse);
-                playerToBoost.isBoosted = true;
-                playerToBoost.SetBoost(boostDuration);
-            }
+            playerToBoost.Knockback(boostAmount, transform.forward, true);
         }
     }
 }
