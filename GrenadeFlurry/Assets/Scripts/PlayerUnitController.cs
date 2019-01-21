@@ -11,9 +11,12 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
     [SerializeField] private float jumpPower;
     [HideInInspector] public bool isBoosted = false;
 
+    [Header("Grenades")]
+    [SerializeField] private Transform throwPoint;
+    [SerializeField] private GameObject grenadePrefab;
+    [SerializeField] private float throwPower;
 
     [Header("Components")]
-    //[SerializeField] private Rigidbody rb;
     [SerializeField] private CharacterController cc;
     [SerializeField] public MeshRenderer meshRenderer;
     [SerializeField] private Material clientOwnerMaterial;
@@ -24,8 +27,15 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
 
     private void Start()
     {
+        if (!isServer)
+        {
+            CmdSetUpUnitOnLocal();
+        }
+        else
+        {
+            RpcSetUpUnitOnLocal();
+        }
 
-        RpcSetUpUnitOnLocal();
         //If this is not my player unit exit
         if (hasAuthority == false)
         {
@@ -35,15 +45,16 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
 
     private void Update()
     {
+        Debug.Log(NetworkServer.active.ToString());
         //If this is not my player unit
         if (hasAuthority == false)
         {
             return;
         }
-
-        //Debug.Log("Is boosted: " + isBoosted + " Duration: " + boostDuration + " current: " + currentBoostTimer);
+        
         MovementController();
-        //BoostedTimer();
+        GrenadeController();
+
     }
 
     private void FixedUpdate()
@@ -53,9 +64,23 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
         {
             return;
         }
-        //LimitMaxSpeed();
     }
     
+    private void GrenadeController()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (!isServer)
+            {
+                CmdThrowGrenade(head.up);
+            }
+            else
+            {
+                RpcThrowGrenade(head.up);
+            }
+        }
+    }
+
     private void MovementController()
     {
 
@@ -96,67 +121,6 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
         }
 
 
-        /*if (!isGrounded)
-        {
-            cc.Move(Vector3.down * fallSpeed * Time.deltaTime);
-        }
-
-        if (Input.GetKey(KeyCode.W)) //Forward
-        {
-            cc.Move(gfx.forward * moveSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.S)) //Backward
-        {
-            cc.Move(gfx.forward * -moveSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.D)) //Right
-        {
-            cc.Move(gfx.right * moveSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.A)) //Left
-        {
-            cc.Move(gfx.right * -moveSpeed * Time.deltaTime);
-        }*/
-
-        #region legacy
-        /*//direction = transform.InverseTransformDirection(rb.velocity);
-
-
-
-        if (Input.GetKey(KeyCode.D) && isGrounded)
-        {
-            rb.AddForce(myCam.transform.right * moveSpeed * Time.deltaTime, ForceMode.Force);
-
-        }
-        if (Input.GetKey(KeyCode.A) && isGrounded)
-        {
-
-            rb.AddForce(myCam.transform.right * -moveSpeed * Time.deltaTime, ForceMode.Force);
-
-        }
-        if (Input.GetKey(KeyCode.W))
-        {
-
-            rb.AddForce(gfx.forward * moveSpeed * Time.deltaTime, ForceMode.Force);
-
-
-        }
-        if (Input.GetKey(KeyCode.S) && isGrounded)
-        {
-
-            rb.AddForce(gfx.forward * -moveSpeed * Time.deltaTime, ForceMode.Force);
-
-        }
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
-            isGrounded = false;
-        }
-        if (Input.GetKey(KeyCode.LeftControl) && isGrounded) 
-        {
-            rb.velocity = Vector3.zero;
-        }*/
-        #endregion
     }
 
     public void Knockback(float force, Vector3 direction, bool isBoost)
@@ -164,42 +128,45 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
         kbr.AddImpact(force, direction, isBoost);
     }
 
-    /*private void BoostedTimer()
+
+    public void TakeDamage()
     {
-        if (isBoosted)
+        if (!isServer)
         {
-            if (currentBoostTimer > boostDuration)
-            {
-                isBoosted = false;
-                currentBoostTimer = 0;
-                boostDuration = 0;
-            }
-            else
-            {
-                currentBoostTimer += Time.deltaTime;
-            }
+            CmdRespawn();
+        }
+        else
+        {
+            RpcRespawn();
         }
     }
 
-    public void SetBoost(float time)
-    {
-        boostDuration = time;
-        currentBoostTimer = 0;
 
-    }*/
-
-    /*private void LimitMaxSpeed()
-    {
-        if (rb.velocity.magnitude > maxSpeed && !isBoosted)
-        {
-            rb.velocity = rb.velocity.normalized * maxSpeed;
-        }
-    }*/
-
-    
     //////////////////////////COMMAND
     //Commands are ran on the server
+    [Command]
+    private void CmdThrowGrenade(Vector3 dir)
+    {
+        /*GameObject _grenade = Instantiate(grenadePrefab, throwPoint.position, Quaternion.identity);
+        Rigidbody _grb = _grenade.GetComponent<Rigidbody>();
+        _grb.AddForce(dir * throwPower, ForceMode.Impulse);
 
+        NetworkServer.Spawn(_grenade);   */
+
+        RpcThrowGrenade(dir);
+    }
+
+    [Command]
+    private void CmdRespawn()
+    {
+        RpcRespawn();
+    }
+
+    [Command]
+    private void CmdSetUpUnitOnLocal()
+    {
+        RpcSetUpUnitOnLocal();
+    }
 
     /////////////////////////RPC
     //RPCs are called on all clients induvidually
@@ -219,5 +186,19 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
         myCam.GetComponent<SmoothMouseLook>().allowedControlByCurrentClient = true;
     }
 
+    [ClientRpc]
+    private void RpcThrowGrenade(Vector3 dir)
+    {
+        GameObject _grenade = Instantiate(grenadePrefab, throwPoint.position, Quaternion.identity);
+        Rigidbody _grb = _grenade.GetComponent<Rigidbody>();
+        _grb.AddForce(dir * throwPower, ForceMode.Impulse);
 
+        NetworkServer.Spawn(_grenade);
+    }
+
+    [ClientRpc]
+    private void RpcRespawn()
+    {
+        this.transform.position = RespawnPositions.Instance.spawnPositions[0].position;
+    }
 }
