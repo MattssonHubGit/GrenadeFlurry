@@ -7,9 +7,14 @@ public class Grenade : NetworkBehaviour
 {
     [SerializeField] private GameObject explosionPrefab;
 
+    private void Start()
+    {
+        Destroy(this.gameObject, 30f);
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
-        if (!isServer)
+        if (isServer == false)
         {
             CmdCreateExplosion(this.transform.position);
         }
@@ -23,6 +28,10 @@ public class Grenade : NetworkBehaviour
     [ClientRpc]
     private void RpcCreateExplosion(Vector3 pos)
     {
+        if (!isServer)
+        {
+            return;
+        }
         GameObject _explosion = Instantiate(explosionPrefab, pos, Quaternion.identity);
 
         NetworkServer.Spawn(_explosion);

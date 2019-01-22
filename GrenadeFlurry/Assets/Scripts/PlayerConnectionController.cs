@@ -26,7 +26,7 @@ public class PlayerConnectionController : NetworkBehaviour
     [Command]
     private void CmdSpawnPlayer()
     {
-        GameObject _player = Instantiate(playerUnitPrefab);
+        GameObject _player = Instantiate(playerUnitPrefab, RespawnPositions.Instance.spawnPositions[0].position, Quaternion.identity);
 
         myPlayerUnit = _player.GetComponent<PlayerUnitController>();
 

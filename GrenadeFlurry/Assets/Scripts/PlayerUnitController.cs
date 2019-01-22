@@ -110,15 +110,15 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
         Vector3 move = new Vector3(x, -fallSpeed, z) * moveSpeed;
         move = gfx.transform.TransformDirection(move);
 
-        if (cc.isGrounded && Input.GetKey(KeyCode.Space) && !isBoosted)
+        if (cc.isGrounded && Input.GetKey(KeyCode.Space)/* && !isBoosted*/)
         {
             Knockback(jumpPower, transform.up, false);
         }   
 
-        if (!isBoosted)
-        {
+       // if (!isBoosted)
+       // {
             cc.Move(move * Time.deltaTime);
-        }
+       // }
 
 
     }
@@ -189,6 +189,11 @@ public class PlayerUnitController : NetworkBehaviour, IKnockbackable
     [ClientRpc]
     private void RpcThrowGrenade(Vector3 dir)
     {
+        if (!isServer)
+        {
+            return;
+        }
+
         GameObject _grenade = Instantiate(grenadePrefab, throwPoint.position, Quaternion.identity);
         Rigidbody _grb = _grenade.GetComponent<Rigidbody>();
         _grb.AddForce(dir * throwPower, ForceMode.Impulse);

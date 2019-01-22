@@ -5,7 +5,6 @@ using UnityEngine;
 public class RespawnPositions : MonoBehaviour
 {
     [SerializeField] public List<Transform> spawnPositions = new List<Transform>();
-    public Transform lastSpawn;
 
     public static RespawnPositions Instance;
 
